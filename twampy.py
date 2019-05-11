@@ -244,8 +244,10 @@ class udpSession(threading.Thread):
 
 class twampStatistics():
 
-    def __init__(self):
+    def __init__(self, local_addr, remote_addr):
         self.count = 0
+        self.local_addr = local_addr
+        self.remote_addr = remote_addr
 
     def add(self, delayRT, delayOB, delayIB, rseq, sseq):
         if self.count == 0:
@@ -320,6 +322,14 @@ class twampStatistics():
         print("                                                    Jitter Algorithm [RFC1889]")
         print("===============================================================================")
         sys.stdout.flush()
+    
+    def telegraf_output(self, total):
+        if self.count > 0:
+            self.lossRT = total - self.count
+            print("twamp,host=%s,target=\"%s\" " % (self.local_addr.split('.')[0], self.remote_addr) +\
+                "inbound_min=%s,inbound_max=%s,inbound_avg=%s,inbound_jitter=%s,inbound_loss=%s,"% ( self.minIB, self.maxIB, self.sumIB / self.count , self.jitterIB, 100 * float(self.lossIB) / total) +\
+                "outbound_min=%s,outbound_max=%s,outbound_avg=%s,outbound_jitter=%s,outbound_loss=%s," % (self.minOB, self.maxOB, self.sumOB / self.count, self.jitterOB, 100 * float(self.lossOB) / total) +\
+                "roundtrip_min=%s,roundtrip_max=%s,roundtrip_avg=%s,roundtrip_jitter=%s,roundtrip_loss=%s" % (self.minRT, self.maxRT, self.sumRT / self.count, self.jitterRT, 100 * float(self.lossRT) / total))
 
 #############################################################################
 
@@ -334,12 +344,13 @@ class twampySessionSender(udpSession):
         
         ipversion = 6 if (sipv == 6) or (ripv == 6) else 4
         udpSession.__init__(self, sip, spt, args.tos, args.ttl, args.do_not_fragment, ipversion)
-
+        
         self.remote_addr = rip
         self.remote_port = rpt
         self.interval = float(args.interval) / 1000
         self.count = args.count
-        self.stats = twampStatistics()
+        self.stats = twampStatistics(local_addr=args.near_end, remote_addr=args.far_end)
+        self.telegraf = args.telegraf
 
         if args.padding != -1:
             self.padmix = [args.padding]
@@ -397,8 +408,11 @@ class twampySessionSender(udpSession):
             if (t1 > endtime):
                 log.info("Receive timeout for last packet (don't wait anymore)")
                 self.running = False
-
-        self.stats.dump(idx)
+        
+        if self.telegraf:
+            self.stats.telegraf_output(idx)
+        else:
+            self.stats.dump(idx)
 
 
 class twampySessionReflector(udpSession):
@@ -745,6 +759,10 @@ if __name__ == '__main__':
     group.add_argument('near_end', nargs='?', metavar='local-ip:port', default=":20000")
     group.add_argument('-i', '--interval', metavar='msec', default=100,  type=int, help="[100,1000]")
     group.add_argument('-c', '--count',    metavar='packets', default=100,  type=int, help="[1..9999]")
+    # telegraf output option
+    group.add_argument('-t', '--telegraf', action='store_true', help="Enable telegraf output for parsing with inputs.exec plugin")
+
+
 
     p_control = subparsers.add_parser('controller', help='TWAMP controller', parents=[debug_parser, ipopt_parser])
     group = p_control.add_argument_group("TWAMP controller options")
