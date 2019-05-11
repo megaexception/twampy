@@ -5,10 +5,11 @@ was developed to validate the Nokia SR OS TWAMP implementation.
 
 ## Supported features
 * unauthenticated mode
-* IPv4 and IPv6
+* IPv4, IPv6 and FQDNs
 * Support for DSCP, Padding, JumboFrames, IMIX
 * Support to set DF flag (don't fragment)
 * Basic Delay, Jitter, Loss statistics (jitter according to RFC1889)
+* Telegraf output option `--telegraf`
 
 ##  Modes of operation
 * TWAMP Controller
