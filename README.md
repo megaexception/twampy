@@ -174,3 +174,20 @@ Direction         Min         Max         Avg          Jitter     Loss
                                                     Jitter Algorithm [RFC1889]
 ===============================================================================
 ```
+
+## Usage example as Telegraf input
+
+```
+# /etc/telegraf/telegraf.conf
+[[inputs.exec]]
+  commands = [
+
+    "/usr/local/bin/twampy.py sender --padding 27 -c 3 --telegraf target1.example source.example:20032",
+
+    "/usr/local/bin/twampy.py sender --padding 27 -c 3 --telegraf target2.example source.example:20031"
+
+  ]
+  timeout = "5s"                                   
+  data_format = "influx"                                                                
+
+```
