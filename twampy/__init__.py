@@ -90,13 +90,13 @@ import select
 
 #############################################################################
 
-if (sys.platform == "win32"):
-    #  time0 = time.time() - time.clock()
-    # time.clock() deprecated in 3.3
-    time0 = time.time() - time.process_time()
-
 if sys.version_info > (3,):
     long = int
+else:
+    # python2 on windows needs process start time
+    if (sys.platform == "win32"):
+        time0 = time.time() - time.clock()
+
 
 # Constants to convert between python timestamps and NTP 8B binary format [RFC1305]
 TIMEOFFSET = long(2208988800)    # Time Difference: 1-JAN-1900 to 1-JAN-1970
@@ -104,10 +104,8 @@ ALLBITS = long(0xFFFFFFFF)       # To calculate 32bit fraction of the second
 
 
 def now():
-    if (sys.platform == "win32"):
-        #  return time.clock() + time0
-        # time.clock() deprecated in 3.3
-        return time.process_time() + time0
+    if sys.version_info <= (3,) and (sys.platform == "win32"):
+        return time.clock() + time0
     return time.time()
 
 
