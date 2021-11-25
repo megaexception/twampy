@@ -1,0 +1,14 @@
+[Unit]
+Description = TWAMP responder based on nokia twampy
+Wants = network.target
+After = network.target
+
+[Service]
+Type = simple
+ExecStart = /usr/local/bin/twampy responder -l /var/log/twampy.log
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=twampy
+
+[Install]
+WantedBy = multi-user.target
