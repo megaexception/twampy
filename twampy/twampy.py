@@ -729,7 +729,7 @@ cp63           63             1111 1100      FC
 
 #############################################################################
 
-if __name__ == '__main__':
+def main():
     debug_parser = argparse.ArgumentParser(add_help=False)
 
     debug_options = debug_parser.add_argument_group("Debug Options")
@@ -847,4 +847,7 @@ if __name__ == '__main__':
 
     options.func(options)
 
+
+if __name__ == '__main__':
+    main()
 # EOF
