@@ -12,7 +12,7 @@ setup(
     packages=['twampy'],
     entry_points={
         'console_scripts': [
-            'twampy=twampy.twampy:main',
+            'twampy=twampy:main',
         ],
     },
     include_package_data=True,

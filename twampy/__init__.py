@@ -729,6 +729,10 @@ cp63           63             1111 1100      FC
 
 #############################################################################
 
+
+log = logging.getLogger("twampy")
+
+
 def main():
     debug_parser = argparse.ArgumentParser(add_help=False)
 
@@ -833,7 +837,6 @@ def main():
         loghandler.setFormatter(logging.Formatter(logformat, timeformat))
         loglevel = logging.WARNING
 
-    log = logging.getLogger("twampy")
     log.setLevel(loglevel)
     log.addHandler(loghandler)
 
