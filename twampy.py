@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 ##############################################################################
 #                                                                            #
@@ -91,7 +91,9 @@ import select
 #############################################################################
 
 if (sys.platform == "win32"):
-    time0 = time.time() - time.clock()
+    #  time0 = time.time() - time.clock()
+    # time.clock() deprecated in 3.3
+    time0 = time.time() - time.process_time()
 
 if sys.version_info > (3,):
     long = int
@@ -103,7 +105,9 @@ ALLBITS = long(0xFFFFFFFF)       # To calculate 32bit fraction of the second
 
 def now():
     if (sys.platform == "win32"):
-        return time.clock() + time0
+        #  return time.clock() + time0
+        # time.clock() deprecated in 3.3
+        return time.process_time() + time0
     return time.time()
 
 
@@ -579,7 +583,7 @@ def twl_responder(args):
 
     signal.signal(signal.SIGINT, reflector.stop)
 
-    while reflector.isAlive():
+    while reflector.is_alive():
         time.sleep(0.1)
 
 
@@ -789,6 +793,11 @@ if __name__ == '__main__':
 #############################################################################
 
     options = parser.parse_args()
+
+    # in Python3 emty cmdline results in emtpy options!
+    if not options.__dict__:
+        parser.print_usage()
+        exit(-1)
 
     if not options.parseop:
         print(options)
