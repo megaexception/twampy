@@ -202,7 +202,10 @@ class udpSession(threading.Thread):
         self.socket = socket.socket(
             socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.socket.setsockopt(socket.IPPROTO_IP, socket.IP_TOS, tos)
-        self.socket.setsockopt(socket.SOL_IP,     socket.IP_TTL, ttl)
+        if (sys.platform == "darwin"):
+            self.socket.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
+        else:
+            self.socket.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((addr, port))
         if df:
