@@ -327,17 +327,20 @@ class twampStatistics():
         print("                                                    Jitter Algorithm [RFC1889]")
         print("===============================================================================")
         sys.stdout.flush()
-    
+
     def telegraf_output(self, total):
+        host = self.local_addr.split(':')[0]
+        if not host:
+            host = socket.gethostname()
         if self.count > 0:
             self.lossRT = total - self.count
-            print("twamp,host=%s,target=\"%s\" " % (self.local_addr.split('.')[0], self.remote_addr) +\
+            print("twamp,host=%s,target=\"%s\" " % (host, self.remote_addr) +\
                 "inbound_min=%s,inbound_max=%s,inbound_avg=%s,inbound_jitter=%s,inbound_loss=%s,"% ( self.minIB, self.maxIB, self.sumIB / self.count , self.jitterIB, 100 * float(self.lossIB) / total) +\
                 "outbound_min=%s,outbound_max=%s,outbound_avg=%s,outbound_jitter=%s,outbound_loss=%s," % (self.minOB, self.maxOB, self.sumOB / self.count, self.jitterOB, 100 * float(self.lossOB) / total) +\
                 "roundtrip_min=%s,roundtrip_max=%s,roundtrip_avg=%s,roundtrip_jitter=%s,roundtrip_loss=%s" % (self.minRT, self.maxRT, self.sumRT / self.count, self.jitterRT, 100 * float(self.lossRT) / total))
         else:
             print(
-                "twamp,host=%s,target=\"%s\" " % (self.local_addr.split('.')[0], self.remote_addr) +\
+                "twamp,host=%s,target=\"%s\" " % (host, self.remote_addr) +\
                 "inbound_loss=100.0,outbound_loss=100.0,roundtrip_loss=100.0"
             )
 
