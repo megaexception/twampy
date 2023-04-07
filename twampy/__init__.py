@@ -92,10 +92,10 @@ import select
 
 if sys.version_info > (3,):
     long = int
-else:
+    time0 = time.time() - time.perf_counter()
+elif (sys.platform == "win32"):
     # python2 on windows needs process start time
-    if (sys.platform == "win32"):
-        time0 = time.time() - time.clock()
+    time0 = time.time() - time.clock()
 
 
 # Constants to convert between python timestamps and NTP 8B binary format [RFC1305]
@@ -104,9 +104,14 @@ ALLBITS = long(0xFFFFFFFF)       # To calculate 32bit fraction of the second
 
 
 def now():
-    if sys.version_info <= (3,) and (sys.platform == "win32"):
-        return time.clock() + time0
-    return time.time()
+    # python2 on win32 need to use time.clock()
+    if sys.version_info < (3, ) and sys.platform == "win32":
+        return time0 + time.clock()
+    # python3 on win32 time.perf_counter() drifts from time.time() so cannot be used
+    if sys.version_info > (3, ) and sys.platform == "win32":
+        return time.time()
+    # python3 on normal systems can use time.perf_counter()
+    return time0 + time.perf_counter()
 
 
 def time_ntp2py(data):
