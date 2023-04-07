@@ -118,7 +118,6 @@ def time_ntp2py(data):
     """
     Convert NTP 8 byte binary format [RFC1305] to python timestamp
     """
-
     ta, tb = struct.unpack('!2I', data)
     t = ta - TIMEOFFSET + float(tb) / float(ALLBITS)
     return t
@@ -751,7 +750,7 @@ def main():
     debug_parser = argparse.ArgumentParser(add_help=False)
 
     debug_options = debug_parser.add_argument_group("Debug Options")
-    debug_options.add_argument('-l', '--logfile', metavar='filename', type=argparse.FileType('wb', 0), default='-', help='Specify the logfile (default: <stdout>)')
+    debug_options.add_argument('-l', '--logfile', metavar='filename', type=argparse.FileType('wt', 0), default='-', help='Specify the logfile (default: <stdout>)')
     group = debug_options.add_mutually_exclusive_group()
     group.add_argument('-q', '--quiet',   action='store_true', help='disable logging')
     group.add_argument('-v', '--verbose', action='store_true', help='enhanced logging')
@@ -829,29 +828,18 @@ def main():
 #############################################################################
 
     if options.quiet:
-        logfile = open(os.devnull, 'a')
-        loghandler = logging.StreamHandler(logfile)
-        loglevel = logging.NOTSET
+        log.setLevel(logging.NOTSET)
     elif options.debug:
-        logformat = '%(asctime)s,%(msecs)-3d %(levelname)-8s %(message)s'
-        timeformat = '%y/%m/%d %H:%M:%S'
-        loghandler = logging.StreamHandler(options.logfile)
-        loghandler.setFormatter(logging.Formatter(logformat, timeformat))
-        loglevel = logging.DEBUG
+        log.setLevel(logging.DEBUG)
     elif options.verbose:
-        logformat = '%(asctime)s,%(msecs)-3d %(levelname)-8s %(message)s'
-        timeformat = '%y/%m/%d %H:%M:%S'
-        loghandler = logging.StreamHandler(options.logfile)
-        loghandler.setFormatter(logging.Formatter(logformat, timeformat))
-        loglevel = logging.INFO
+        log.setLevel(logging.INFO)
     else:
-        logformat = '%(asctime)s,%(msecs)-3d %(levelname)-8s %(message)s'
-        timeformat = '%y/%m/%d %H:%M:%S'
-        loghandler = logging.StreamHandler(options.logfile)
-        loghandler.setFormatter(logging.Formatter(logformat, timeformat))
-        loglevel = logging.WARNING
+        log.setLevel(logging.WARNING)
 
-    log.setLevel(loglevel)
+    logformat = '%(asctime)s,%(msecs)-3d %(levelname)-8s %(message)s'
+    timeformat = '%F %T'
+    loghandler = logging.StreamHandler(options.logfile)
+    loghandler.setFormatter(logging.Formatter(logformat, timeformat))
     log.addHandler(loghandler)
 
 #############################################################################
